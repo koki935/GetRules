@@ -35,9 +35,13 @@ export async function POST(request: Request) {
     }
 
     const archive = await zip.generateAsync({ type: "uint8array" });
+    const arrayBuffer = archive.buffer.slice(
+      archive.byteOffset,
+      archive.byteOffset + archive.byteLength,
+    );
     const fileName = `laws-${outputFormat}-${Date.now()}.zip`;
 
-    return new Response(archive, {
+    return new Response(arrayBuffer, {
       headers: {
         "Content-Type": "application/zip",
         "Content-Disposition": `attachment; filename="${fileName}"`,
