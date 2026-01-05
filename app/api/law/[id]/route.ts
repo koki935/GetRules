@@ -1,8 +1,11 @@
 ﻿import { NextRequest, NextResponse } from "next/server";
 import { fetchLawDetail } from "@/lib/api/hourei";
 
-export async function GET(_request: NextRequest, { params }: { params: { id: string } }) {
-  const lawId = params.id;
+export async function GET(
+  _request: NextRequest,
+  context: { params: Promise<{ id: string }> },
+) {
+  const { id: lawId } = await context.params;
 
   if (!lawId) {
     return NextResponse.json(
