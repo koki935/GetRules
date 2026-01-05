@@ -34,7 +34,7 @@ export async function POST(request: Request) {
       }
     }
 
-    const archive = await zip.generateAsync({ type: "nodebuffer" });
+    const archive = await zip.generateAsync({ type: "uint8array" });
     const fileName = `laws-${outputFormat}-${Date.now()}.zip`;
 
     return new Response(archive, {
