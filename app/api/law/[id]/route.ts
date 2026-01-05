@@ -1,18 +1,12 @@
-import { NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
 import { fetchLawDetail } from "@/lib/api/hourei";
 
-interface RouteParams {
-  params: {
-    id: string;
-  };
-}
-
-export async function GET(_request: Request, context: RouteParams) {
-  const lawId = context.params.id;
+export async function GET(_request: NextRequest, { params }: { params: { id: string } }) {
+  const lawId = params.id;
 
   if (!lawId) {
     return NextResponse.json(
-      { message: "法令IDが指定されていません。" },
+      { message: "lawIdは必須です。" },
       { status: 400 },
     );
   }
