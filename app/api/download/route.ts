@@ -1,4 +1,6 @@
-import { fetchLawDetail } from "@/lib/api/hourei";
+﻿import { fetchLawDetail } from "@/lib/api/hourei";
+
+const UTF8_BOM = "\uFEFF";
 
 export async function POST(request: Request) {
   try {
@@ -13,10 +15,7 @@ export async function POST(request: Request) {
 
     const outputFormat = format === "json" ? "json" : "markdown";
     const law = await fetchLawDetail(lawId);
-    const safeBase = `${law.lawName || law.lawId || "hourei"}`.replace(
-      /[\\/:*?"<>|]/g,
-      "_",
-    );
+    const safeBase = `${law.lawName || law.lawId || "hourei"}`.replace(/[\\/:*?"<>|]/g, "_");
 
     if (outputFormat === "json") {
       const lawForJson: typeof law = {
@@ -32,7 +31,7 @@ export async function POST(request: Request) {
       });
     }
 
-    const markdown = law.markdown || "";
+    const markdown = `${UTF8_BOM}${law.markdown || ""}`;
     return new Response(markdown, {
       headers: {
         "Content-Type": "text/markdown; charset=utf-8",
@@ -41,12 +40,9 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error("Failed to download file", error);
-    return new Response(
-      JSON.stringify({ message: "ダウンロードに失敗しました。" }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      },
-    );
+    return new Response(JSON.stringify({ message: "ダウンロードに失敗しました。" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 }

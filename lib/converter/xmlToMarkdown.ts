@@ -38,7 +38,7 @@ export function convertLawXml(xml: string): LawDetail {
     stringValue(root?.PromulgationDate);
 
   const parsedArticles = parseArticles(
-    ensureArray(lawBody?.MainProvision?.Article ?? lawBody?.Article),
+    extractArticlesFromNode(lawBody?.MainProvision ?? lawBody),
   );
 
   const articles =
@@ -97,6 +97,36 @@ function parseArticles(nodes: unknown[]): LawArticle[] {
       (article) =>
         article.title || article.caption || article.paragraphs.length > 0,
     );
+}
+
+const ARTICLE_CONTAINERS = [
+  "Part",
+  "Chapter",
+  "Section",
+  "Subsection",
+  "Division",
+  "SupChapter",
+  "SupSection",
+  "ArticleGroup",
+  "SupplProvision",
+];
+
+function extractArticlesFromNode(root: unknown): unknown[] {
+  if (!root || typeof root !== "object") {
+    return [];
+  }
+
+  const record = root as Record<string, unknown>;
+  let articles = ensureArray(record.Article);
+
+  ARTICLE_CONTAINERS.forEach((key) => {
+    const children = ensureArray(record[key]);
+    children.forEach((child) => {
+      articles = articles.concat(extractArticlesFromNode(child));
+    });
+  });
+
+  return articles;
 }
 
 function parseParagraphs(nodes: unknown[]): LawParagraph[] {

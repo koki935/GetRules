@@ -1,7 +1,6 @@
-"use client";
+﻿"use client";
 
 import { LawSummary } from "@/lib/types/hourei";
-import DownloadButton from "./DownloadButton";
 
 interface LawListProps {
   laws: LawSummary[];
@@ -32,95 +31,96 @@ export default function LawList({
   onSelectAll,
   onClearSelection,
 }: LawListProps) {
+  const allChecked = laws.length > 0 && laws.every((law) => selectedLawIds.has(law.lawId));
   const showEmpty = hasSearched && !isLoading && laws.length === 0;
+  const showPlaceholder = !hasSearched && !isLoading;
 
   return (
-    <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div className="flex items-center gap-2">
+    <div className="rounded-3xl border border-slate-100 bg-white/80 p-5 shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4">
+        <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
           <input
             type="checkbox"
             className="h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500"
-            checked={laws.length > 0 && laws.every((law) => selectedLawIds.has(law.lawId))}
-            onChange={(event) =>
-              event.target.checked ? onSelectAll() : onClearSelection()
-            }
+            checked={allChecked}
+            onChange={(event) => (event.target.checked ? onSelectAll() : onClearSelection())}
             disabled={laws.length === 0}
           />
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-sky-600">
-              検索結果
-            </p>
-            <h3 className="text-lg font-semibold text-slate-900">
-              {totalCount ? `該当 ${totalCount} 件` : `このページ ${laws.length} 件`}
-            </h3>
-          </div>
+          すべて選択
+        </label>
+        <div className="text-sm text-slate-500">
+          {hasSearched
+            ? `表示: ${laws.length}件 / ${(totalCount ?? laws.length).toLocaleString()}件`
+            : "検索すると一覧が表示されます"}
         </div>
-        <p className="text-xs text-slate-500">ページ {page}</p>
+        <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+          Page {page}
+        </div>
       </div>
 
       {isLoading && (
-        <div className="mt-6 rounded-xl border border-dashed border-slate-200 bg-slate-50 p-6 text-center text-sm text-slate-500">
+        <div className="mt-6 rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-6 text-center text-sm text-slate-500">
           e-Gov法令APIからデータを取得しています...
         </div>
       )}
 
+      {showPlaceholder && (
+        <div className="mt-6 rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-6 text-center text-sm text-slate-500">
+          法令名を入力して検索するとここに結果が表示されます。
+        </div>
+      )}
+
       {showEmpty && (
-        <div className="mt-6 rounded-xl border border-dashed border-slate-200 bg-slate-50 p-6 text-center text-sm text-slate-500">
-          該当する法令名が見つかりません。キーワードを変えて再度お試しください。
+        <div className="mt-6 rounded-2xl border border-dashed border-rose-200 bg-rose-50 p-6 text-center text-sm text-rose-700">
+          該当する法令が見つかりませんでした。別のキーワードを試してください。
         </div>
       )}
 
       {!isLoading && laws.length > 0 && (
-        <ul className="mt-6 space-y-4">
-          {laws.map((law) => (
-            <li
-              key={law.lawId}
-              className="rounded-2xl border border-slate-100 p-4 transition hover:border-sky-100 hover:bg-slate-50/70"
-            >
-              <div className="flex items-start gap-4">
-                <div className="flex flex-1 items-start gap-3">
-                  <input
-                    type="checkbox"
-                    className="mt-1 h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500"
-                    checked={selectedLawIds.has(law.lawId)}
-                    onChange={(event) => onToggleLaw(law, event.target.checked)}
-                  />
-                  <div className="min-w-0">
-                    <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                      {law.lawNo || "法令番号未設定"}
-                    </p>
-                    <h4 className="mt-1 text-lg font-semibold text-slate-900 break-words">
-                      {law.lawName || "名称不明"}
-                    </h4>
-                    <p className="text-sm text-slate-500">
+        <ul className="mt-6 space-y-3">
+          {laws.map((law) => {
+            const badge = getLawBadge(law.lawName);
+            return (
+              <li
+                key={law.lawId}
+                className="flex gap-3 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm transition hover:border-sky-100 hover:bg-slate-50"
+              >
+                <input
+                  type="checkbox"
+                  className="mt-1 h-5 w-5 rounded border-slate-300 text-sky-600 focus:ring-sky-500"
+                  checked={selectedLawIds.has(law.lawId)}
+                  onChange={(event) => onToggleLaw(law, event.target.checked)}
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${badge.className}`}>
+                      {badge.label}
+                    </span>
+                    <span className="text-xs uppercase tracking-wide text-slate-500">
                       {formatDate(law.promulgationDate)}
-                    </p>
+                    </span>
                   </div>
+                  <h4 className="mt-2 break-words text-lg font-semibold text-slate-900">
+                    {law.lawName || "名称未設定"}
+                  </h4>
+                  <p className="text-sm text-slate-500">
+                    {law.lawNo ?? "法令番号未設定"}
+                  </p>
                 </div>
-                <div className="shrink-0 self-start">
-                  <DownloadButton
-                    lawId={law.lawId}
-                    lawName={law.lawName}
-                    size="sm"
-                  />
-                </div>
-              </div>
-            </li>
-          ))}
+              </li>
+            );
+          })}
         </ul>
       )}
 
-      <div className="mt-8 flex flex-wrap items-center justify-between gap-4">
-        <div className="text-xs text-slate-500">
-          API標準仕様: 1ページ20件。ヒットが多い場合はページを進めてください。
-        </div>
+      <div className="mt-8 flex flex-wrap items-center justify-between gap-4 text-sm text-slate-500">
+        <p>API仕様: 1ページ20件。ヒットが多い場合はページを切り替えてください。</p>
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={() => onPageChange(page - 1)}
             disabled={isLoading || !hasPreviousPage}
-            className="rounded-full border border-slate-200 px-4 py-1.5 text-sm font-medium text-slate-700 disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-full border border-slate-200 px-4 py-1.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
           >
             前へ
           </button>
@@ -128,7 +128,7 @@ export default function LawList({
             type="button"
             onClick={() => onPageChange(page + 1)}
             disabled={isLoading || !hasNextPage}
-            className="rounded-full border border-slate-200 px-4 py-1.5 text-sm font-medium text-slate-700 disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-full border border-slate-200 px-4 py-1.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
           >
             次へ
           </button>
@@ -140,11 +140,10 @@ export default function LawList({
 
 function formatDate(value?: string | number | null) {
   if (value === undefined || value === null || value === "") {
-    return "公布日情報なし";
+    return "日付情報なし";
   }
 
-  const normalized = String(value);
-  const digits = normalized.replace(/\D/g, "");
+  const digits = String(value).replace(/\D/g, "");
   if (digits.length === 8) {
     const year = digits.slice(0, 4);
     const month = Number(digits.slice(4, 6));
@@ -152,5 +151,20 @@ function formatDate(value?: string | number | null) {
     return `${year}年${month}月${day}日`;
   }
 
-  return normalized;
+  return String(value);
 }
+
+function getLawBadge(lawName?: string) {
+  const name = lawName ?? "";
+  if (name.endsWith("規則")) {
+    return { label: "規則", className: "bg-amber-100 text-amber-800" };
+  }
+  if (name.endsWith("令")) {
+    return { label: "令", className: "bg-emerald-100 text-emerald-700" };
+  }
+  if (name.endsWith("法律") || name.endsWith("法")) {
+    return { label: "法", className: "bg-sky-100 text-sky-700" };
+  }
+  return { label: "その他", className: "bg-slate-100 text-slate-600" };
+}
+
