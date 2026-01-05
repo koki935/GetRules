@@ -34,14 +34,11 @@ export async function POST(request: Request) {
       }
     }
 
-    const archive = await zip.generateAsync({ type: "uint8array" });
-    const arrayBuffer = archive.buffer.slice(
-      archive.byteOffset,
-      archive.byteOffset + archive.byteLength,
-    );
+    const archive = await zip.generateAsync({ type: "arraybuffer" });
+    const blob = new Blob([archive], { type: "application/zip" });
     const fileName = `laws-${outputFormat}-${Date.now()}.zip`;
 
-    return new Response(arrayBuffer, {
+    return new Response(blob, {
       headers: {
         "Content-Type": "application/zip",
         "Content-Disposition": `attachment; filename="${fileName}"`,

@@ -1,4 +1,4 @@
-import { fetchLawDetail } from "../lib/api/hourei.ts";
+import { fetchLawDetail } from "../lib/api/hourei";
 
 async function main() {
   const law = await fetchLawDetail("414AC0000000188");
