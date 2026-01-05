@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 245 245 245;
+  --foreground: 28 28 28;
+  --card: 255 255 255;
+}
+
+body {
+  min-height: 100vh;
+  background-color: rgb(var(--background));
+  color: rgb(var(--foreground));
+}
+
+#app {
+  min-height: inherit;
+}
