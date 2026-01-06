@@ -10,6 +10,8 @@ interface PageProps {
   };
 }
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   return {
     title: `法令詳細 | ${params.id}`,

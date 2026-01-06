@@ -25,9 +25,7 @@ cp .env.example .env.local
 
 | 変数名              | 説明                                            | 既定値                            |
 | ------------------- | ----------------------------------------------- | --------------------------------- |
-| `EGOV_API_BASE_URL` | e-Gov法令APIのベースURL (Version 2を想定) | `https://elaws.e-gov.go.jp/api/1` |
-
-> Version 2エンドポイントを利用する場合は `https://elaws.e-gov.go.jp/api/2` を指定してください。
+| `EGOV_API_BASE_URL` | e-Gov法令APIのベースURL | `https://elaws.e-gov.go.jp/api/1` |
 
 ## 開発
 
